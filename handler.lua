@@ -7,7 +7,7 @@ local access = require "kong.plugins.kong-google-auth.access"
 
 local GoogleAuthHandler = BasePlugin:extend()
 
-GoogleAuthHandler.VERSION = "1.0.0"
+GoogleAuthHandler.VERSION = "0.0.0"
 -- Set priority to run after OAuth and OIDC
 GoogleAuthHandler.PRIORITY = 1010
 

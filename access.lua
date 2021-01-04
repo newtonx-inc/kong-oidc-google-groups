@@ -19,4 +19,13 @@ function M.access(config)
     -- If user does not belong to one of the valid groups, exit with 403
 end
 
+-- Persistence
+local function setMembership(user, groups)
+
+end
+
+local function getMemberships(user)
+
+end
+
 return M
