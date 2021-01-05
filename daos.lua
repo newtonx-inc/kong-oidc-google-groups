@@ -1,7 +1,6 @@
 local typedefs = require "kong.db.schema.typedefs"
 
 return {
-  -- this plugin only results in one custom DAO, named `google_group_memberships`:
   google_group_memberships = {
     name                  = "google_group_memberships", -- the actual table in the database
     primary_key           = { "google_user" },
@@ -10,6 +9,7 @@ return {
       {
         -- Inserted by the DAO itself
         created_at = typedefs.auto_timestamp_s,
+        updated_at = typedefs.auto_timestamp_s,
       },
       {
         -- The user
@@ -23,6 +23,42 @@ return {
         -- The corresponding group(s) it belongs to
         google_groups = {
           type      = "array",
+          required  = true,
+          unique    = false,
+        },
+      },
+    },
+  },
+  google_tokens = {
+    name                  = "google_tokens", -- the actual table in the database
+    primary_key           = { "name" },
+    cache_key             = { "name" },
+    fields = {
+      {
+        -- Inserted by the DAO itself
+        created_at = typedefs.auto_timestamp_s,
+        updated_at = typedefs.auto_timestamp_s,
+      },
+      {
+        -- The name of the token
+        name = {
+          type      = "string",
+          required  = true,
+          unique    = true,
+        },
+      },
+      {
+        -- The corresponding value of the token
+        value = {
+          type      = "string",
+          required  = true,
+          unique    = false,
+        },
+      },
+      {
+        -- The expiration time, expressed as a unix timestamp
+        expires_at = {
+          type      = "number",
           required  = true,
           unique    = false,
         },

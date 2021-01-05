@@ -27,30 +27,6 @@ function GoogleAuthHandler:init_worker()
     -- Implement any custom logic here
 end
 
-function GoogleAuthHandler:preread(config)
-    -- Eventually, execute the parent implementation
-    -- (will log that your plugin is entering this context)
-    GoogleAuthHandler.super.preread(self)
-
-    -- Implement any custom logic here
-end
-
-function GoogleAuthHandler:certificate(config)
-    -- Eventually, execute the parent implementation
-    -- (will log that your plugin is entering this context)
-    GoogleAuthHandler.super.certificate(self)
-
-    -- Implement any custom logic here
-end
-
-function GoogleAuthHandler:rewrite(config)
-    -- Eventually, execute the parent implementation
-    -- (will log that your plugin is entering this context)
-    GoogleAuthHandler.super.rewrite(self)
-
-    -- Implement any custom logic here
-end
-
 function GoogleAuthHandler:access(config)
     -- Eventually, execute the parent implementation
     -- (will log that your plugin is entering this context)
@@ -59,29 +35,6 @@ function GoogleAuthHandler:access(config)
     access.execute(config)
 end
 
-function GoogleAuthHandler:header_filter(config)
-    -- Eventually, execute the parent implementation
-    -- (will log that your plugin is entering this context)
-    GoogleAuthHandler.super.header_filter(self)
-
-    -- Implement any custom logic here
-end
-
-function GoogleAuthHandler:body_filter(config)
-    -- Eventually, execute the parent implementation
-    -- (will log that your plugin is entering this context)
-    GoogleAuthHandler.super.body_filter(self)
-
-    -- Implement any custom logic here
-end
-
-function GoogleAuthHandler:log(config)
-    -- Eventually, execute the parent implementation
-    -- (will log that your plugin is entering this context)
-    GoogleAuthHandler.super.log(self)
-
-    -- Implement any custom logic here
-end
 
 -- This module needs to return the created table, so that Kong
 -- can execute those functions.
