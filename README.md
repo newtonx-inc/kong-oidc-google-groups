@@ -7,6 +7,13 @@ Description
 
 # Dependencies
 luarocks install base64
-luarocks install lua-cjson
+luarocks install luasocket
+NOTE: Need curl, gcc, musl-dev, 
+luarocks install lua-resty-jwt
+luarocks install json-lua
+
 
 # Configuration
+
+# Misc
+NOTE! Need to add curl package to image
