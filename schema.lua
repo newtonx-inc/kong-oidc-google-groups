@@ -31,6 +31,21 @@ return {
       },
     },
     {
+      -- Environment variable name that stores service account to use for Google Directory API
+      service_account_env_name = {
+          type = "string",
+          required = false,
+          default = "KONG_GOOGLE_APPLICATION_CREDENTIALS",
+      },
+    },
+    {
+      -- Name of admin user for Google Directory API
+      admin_user = {
+          type = "string",
+          required = true,
+      },
+    },
+    {
       -- How long (in seconds) to cache group membership info in the database
       db_cache_period_secs = {
           type = "number",

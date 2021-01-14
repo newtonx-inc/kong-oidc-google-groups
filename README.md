@@ -6,7 +6,6 @@ Description
 * Service account, loaded into env var: GOOGLE_APPLICATION_CREDENTIALS
 
 # Dependencies
-luarocks install base64
 luarocks install luasocket
 NOTE: Need curl, gcc, musl-dev, 
 luarocks install lua-resty-jwt

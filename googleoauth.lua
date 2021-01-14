@@ -1,39 +1,45 @@
-local base64 = require('base64')
 local http = require("resty.http")
 local JSON = require("JSON")
-local pretty = require('pl.pretty')
+--local pretty = require('pl.pretty')
 local jwt = require('resty.jwt')
 
 local googleOAuthAccessToken = "google-oauth2-access-token"
 
-local OAuth = {}
+local OAuth = {
+    config = nil,
+    scopes = "https://www.googleapis.com/auth/admin.directory.group",
+}
 
 local function fetchServiceAccount()
     -- Tries to fetch a service account from the environment and parses it to a table
-    --local svcAcct = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
-    --if svcAcct == nil or svcAcct == '' then
-    --    kong.log.err("No service account found. Make sure to load one in GOOGLE_APPLICATION_CREDENTIALS")
-    --    return
-    --end
-    -- TODO change this to an actual config value
-    local svcAcct = '/usr/local/share/lua/5.1/kong/plugins/oidc/serviceaccount.json'
-    local file, err = io.open(svcAcct, "rb")
-    if err then
-        ngx.log(ngx.DEBUG, "Error opening file: " .. err)
+    -- Returns a table of the service account, or nil if not found
+    local svcAcct = os.getenv(self.config.service_account_env_name)
+    if svcAcct == nil or svcAcct == '' then
+        kong.log.err("No service account found. Make sure to load one in GOOGLE_APPLICATION_CREDENTIALS")
         return nil
     end
-    local svcAcctStr = file:read "*a"
-    return JSON:decode(svcAcctStr)
+    --local svcAcct = '/usr/local/share/lua/5.1/kong/plugins/oidc/serviceaccount.json'
+    --local file, err = io.open(svcAcct, "rb")
+    --if err then
+    --    ngx.log(ngx.DEBUG, "Error opening file: " .. err)
+    --    return nil
+    --end
+    --local svcAcctStr = file:read "*a"
+    return JSON:decode(svcAcct)
 end
 
 local function generateJWT(scopes, delegatedUser)
     -- Generates a Google OAuth2 compliant JWT from a service account
     -- scopes: space delimited set of scopes for the Google API
     -- delegatedUser: the email address of the user who is delegating access TODO - This should probably be a config property
-    -- Returns: a JWT token string
+    -- Returns: a JWT token string or nil
     local svcAcct = fetchServiceAccount()
+    if svcAcct == nil then
+        ngx.log(ngx.DEBUG, "[googleoauth.lua] No service account found, no JWT generated.")
+        return nil
+    end
     ngx.log(ngx.DEBUG, "[googleoauth.lua] Fetched service account for Google OAuth: ")
-    pretty.dump(svcAcct)
+    --pretty.dump(svcAcct)
     local currentUnixTimestamp = os.time(os.date("!*t"))
     local claimSet = {
         iss = svcAcct['client_email'],
@@ -52,15 +58,12 @@ local function generateJWT(scopes, delegatedUser)
     }
     local key = svcAcct['private_key']
     return jwt:sign(key, jwtTable)
-
-    --ngx.log(ngx.DEBUG, "[googleoauth.lua] Created JWT for Google OAuth (not yet base64 encoded): " .. jwtToken)
-    --return base64.encode(jwtToken)
 end
 
 local function requestAccessToken(jwtToken)
     -- Makes a REST call to Google's OAuth2 servers to get the access tokens
-    -- jwtToken: A string representation of a valid base64 encoded JWT
-    -- Returns: the access token, and the expiration time expressed as a unix timestamp
+    -- :param jwtToken: A string representation of a valid base64 encoded JWT
+    -- Returns: the access token, and the expiration time expressed as a unix timestamp or (nil, nil) if request unsuccessful
     local reqBody = "grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Ajwt-bearer&assertion=" .. jwtToken
     ngx.log(ngx.DEBUG, "[googleoauth.lua] in requestAccessToken with body: " .. reqBody)
     local headers = {
@@ -94,6 +97,9 @@ local function requestAccessToken(jwtToken)
 end
 
 local function setAccessTokenInCache(token, expiresAt)
+    -- Persists access token and expiration date in db
+    -- :param token: A token string representing the access token provided by Google OAuth
+    -- :param expiresAt: Datetime of the expiration
     local entity, err = kong.db.google_tokens:upsert({
         { name = googleOAuthAccessToken },
         {
@@ -109,6 +115,8 @@ local function setAccessTokenInCache(token, expiresAt)
 end
 
 local function retrieveAccessTokenFromCache()
+    -- Retrieves access token from db (or cache)
+    -- Returns: token, expiration date
     local entity, err = kong.db.google_tokens:select({
         name = googleOAuthAccessToken,
     })
@@ -118,23 +126,47 @@ local function retrieveAccessTokenFromCache()
         return nil
     end
 
-    -- TODO: Check if token is stale first before returning
-
-    return entity
+    -- Check if token is stale first before returning
+    local currentUnixTimestamp = os.time(os.date("!*t"))
+    ngx.log(ngx.DEBUG, "[googleoauth.lua] Access token expires at: ", entity.expires_at)
+    if entity.expires_at <= currentUnixTimestamp then
+        return nil
+    end
+    return entity.value, entity.expires_at
 end
 
-function OAuth.authenticate()
-    -- TODO: First check DB to see if there is an up to date token and return it. Otherwise, perform the OAuth2 flow
-    local scopes = "https://www.googleapis.com/auth/admin.directory.group"
-    local delegatedUser = "kristoph.matthews@newtonx.com"
-    local token = generateJWT(scopes, delegatedUser)
-    ngx.log(ngx.DEBUG, "[googleoauth.lua] Called generateJWT, which returned base64 encoded token: " .. token)
-    local accessToken, expiresAt = requestAccessToken(token)
-    ngx.log(ngx.DEBUG, "[googleoauth.lua] Called requestAccessToken, which gave an access token value of: " .. accessToken)
-    --if err then
-    --    kong.log.err("Could not get access token from Google: " .. err)
-    --    return nil, err
-    --end
+function OAuth:new(config)
+    -- Constructor
+    -- :param config: The Kong plugin configuration object
+    self.config = config
+end
+
+function OAuth:authenticate()
+    -- Performs all the operations to get a valid Google OAuth token
+    -- Will first check the cache to see if a token exists. If not, a JWT OAuth will be used to get an access token from Google
+    -- Returns a token and expiration date if authentication is successful. Otherwise, returns nil, nil
+
+    -- Initialize by checking from cache/db
+    local accessToken, accessTokenExpiresAt = retrieveAccessTokenFromCache()
+
+    -- If no access token in cache, go through normal flow
+    if accessToken == nil then
+        -- Generate JWT
+        local jwtToken = generateJWT(self.scopes, self.config.admin_user)
+        ngx.log(ngx.DEBUG, "[googleoauth.lua] Called generateJWT, which returned base64 encoded token: " .. jwtToken)
+        -- If could not generate, fail gracefully by returning nil, nil
+        if jwtToken == nil then
+            ngx.log(ngx.DEBUG, "[googleoauth.lua] Could not get a token. Authentication failed." )
+            return nil, nil
+        end
+        -- Otherwise if successful, request access token
+        accessToken, accessTokenExpiresAt = requestAccessToken(jwtToken)
+        ngx.log(ngx.DEBUG, "[googleoauth.lua] Called requestAccessToken, which gave an access token value of: " .. accessToken)
+        -- If access token was present, set in db/cache
+        setAccessTokenInCache(accessToken, accessTokenExpiresAt)
+    end
+
+    -- Otherwise if access token already present in db (and unexpired), simply return it
     return accessToken, expiresAt
 end
 
