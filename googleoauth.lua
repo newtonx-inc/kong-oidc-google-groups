@@ -114,23 +114,44 @@ local function setAccessTokenInCache(token, expiresAt)
     return entity
 end
 
-local function retrieveAccessTokenFromCache()
-    -- Retrieves access token from db (or cache)
-    -- Returns: token, expiration date
+local function retrieveAccessTokenFromDB()
+    -- Retrieves access token from DB
+    -- Returns token, expiration date (or nil, nil) if not present
     local entity, err = kong.db.google_tokens:select({
         name = googleOAuthAccessToken,
     })
 
     if err then
-        kong.log.err("Could not fetch GoogleOAuthAccessToken: " .. err)
-        return nil
+        kong.log.err("[googleoauth.lua] Could not fetch GoogleOAuthAccessToken from DB: " .. err)
+        return nil, nil
+    end
+
+    return entity.value, entity.expires_at
+end
+
+local function retrieveAccessTokenFromCache()
+    -- Retrieves access token from cache (and if not available, retrieve from DB)
+    -- Returns: token, expiration date
+
+    -- Check cache (and check DB as backup)
+    local entity, err = kong.cache:get(googleOAuthAccessToken, nil, retrieveAccessTokenFromDB, googleOAuthAccessToken)
+    if err then
+        kong.log.err("[googleoauth.lua] Could not fetch fetch GoogleOAuthAccessToken from Cache: " .. err)
+        return nil, nil
+    end
+
+    if not entity then
+        kong.log.err("[googleoauth.lua] Cache returned nil for GoogleOAuthAccessToken.")
+        return nil, nil
     end
 
     -- Check if token is stale first before returning
     local currentUnixTimestamp = os.time(os.date("!*t"))
     ngx.log(ngx.DEBUG, "[googleoauth.lua] Access token expires at: ", entity.expires_at)
+    -- TODO - The date formats here need some investigation!
     if entity.expires_at <= currentUnixTimestamp then
-        return nil
+        kong.log.debug("[googleoauth.lua] Access token has already expired!")
+        return nil, nil
     end
     return entity.value, entity.expires_at
 end
