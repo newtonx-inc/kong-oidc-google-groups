@@ -1,9 +1,11 @@
 local JSON = require("JSON")
 local http = require("resty.http")
+local googleoauth = require('googleoauth')
+
 
 local DirectoryApi = {
     user = nil,
-    allowedGroups = {},
+    config = nil,
 }
 
 local function callDirectoryApi(user, group)
@@ -12,10 +14,20 @@ local function callDirectoryApi(user, group)
     -- :param group: The group to check if the user has membership to
     -- Returns: bool
 
+    -- Authenticate
+    local authSvc = googleoauth.new(self.config)
+    local accessToken, _ = authSvc:authenticate()
+
+    if not accessToken then
+        ngx.log(ngx.ERR, "[directoryapi.lua] : Could not fetch Google access token! Aborting...")
+        return false
+    end
+
     -- Calls the provided directory API
     local url = "https://admin.googleapis.com/admin/directory/v1/groups/" .. group .. "/hasMember/" .. user
     local headers = {
         ["Content-Type"] = "application/json",
+        ["Authorization"] = "Bearer " .. accessToken,
     }
     local httpc = http.new()
     local params = {
@@ -40,30 +52,32 @@ local function callDirectoryApi(user, group)
     return parsedRespBody['isMember']
 end
 
-function DirectoryApi:new(user, groups)
+function DirectoryApi:new(user, config)
     -- Constructor
     -- :param user: The user to check (should be a plain email)
-    -- :param allowedGroups: The table (list) of groups to check if the user has membership to
+    -- :param config: The plugin configuration object
     self.user = user
-    self.groups = groups
+    self.config = config
 end
 
 function DirectoryApi:checkMembership()
     -- Checks to see if a user belongs to any of the provided groups
-    -- Returns true if is a member
+    -- Returns true if is a member, matching group
 
     -- Iterate through groups
     local isAMember = false
-    for _, group in ipairs(self.allowedGroups) do
+    local memberOfGroup = nil
+    for _, group in ipairs(self.config.allowedGroups) do
         ngx.log(ngx.DEBUG, "[directoryapi.lua] : Calling Directory API for group: " .. group)
         isAMember = callDirectoryApi(self.user, group)
         -- If a membership is identified, break the loop and return true
         if isAMember then
+            memberOfGroup = group
             break
         end
     end
     ngx.log(ngx.DEBUG, "[directoryapi.lua] : At least one membership to an allowed group found? : " .. tostring(isAMember))
-    return isAMember
+    return isAMember, memberOfGroup
 end
 
 return DirectoryApi
