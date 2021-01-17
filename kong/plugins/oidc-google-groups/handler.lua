@@ -3,7 +3,7 @@
 -- can be called from your child implementation and will print logs
 -- in your `error.log` file (where all logs are printed).
 local BasePlugin = require "kong.plugins.base_plugin"
-local Access = require('access')
+local Access = require('kong.plugins.oidc-google-groups.access')
 
 local GoogleAuthHandler = BasePlugin:extend()
 
