@@ -42,6 +42,9 @@ return {
       {
         -- Inserted by the DAO itself
         created_at = typedefs.auto_timestamp_s,
+      },
+      {
+        -- Inserted by the DAO itself
         updated_at = typedefs.auto_timestamp_s,
       },
       {
@@ -57,7 +60,6 @@ return {
         value = {
           type      = "string",
           required  = true,
-          unique    = false,
         },
       },
       {
@@ -65,7 +67,6 @@ return {
         expires_at = {
           type      = "number",
           required  = true,
-          unique    = false,
         },
       },
     },
