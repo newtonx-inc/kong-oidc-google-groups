@@ -36,7 +36,7 @@ return {
             },
             {
               -- What methods to apply this to (defaults to "all")
-              paths = {
+              methods = {
                   type = "array",
                   required = false,
                   elements = typedefs.http_method,
@@ -54,7 +54,7 @@ return {
               -- Service account to use for Google Directory API (full JSON string)
               service_account = {
                   type = "string",
-                  required = false,
+                  required = true,
               },
             },
             {
