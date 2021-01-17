@@ -5,6 +5,10 @@ local googleapi = require('kong.plugins.kong-google-auth.googleapi')
 local Access = {}
 
 function Access.start(config)
+    -- TODO add in kong-oidc (simplified - don't need all the extra params)
+    -- TODO intercept user info and check for group membership
+    -- TODO account for 429s or 4XXs from Google. Should have a way of alerting on this (Sentry?)
+    -- TODO - need to account for when allowedGroups is empty
     -- * Identify user from Header * --
     -- Try first the Kong OAuth2 header
 

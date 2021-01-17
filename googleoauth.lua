@@ -31,7 +31,7 @@ end
 local function generateJWT(scopes, delegatedUser)
     -- Generates a Google OAuth2 compliant JWT from a service account
     -- scopes: space delimited set of scopes for the Google API
-    -- delegatedUser: the email address of the user who is delegating access TODO - This should probably be a config property
+    -- delegatedUser: the email address of the user who is delegating access
     -- Returns: a JWT token string or nil
     local svcAcct = fetchServiceAccount()
     if svcAcct == nil then

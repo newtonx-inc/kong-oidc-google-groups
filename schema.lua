@@ -1,5 +1,5 @@
 local typedefs = require "kong.db.schema.typedefs"
-
+-- TODO - consider putting the svc account in directly
 
 return {
   name = "kong-google-auth",
@@ -15,8 +15,9 @@ return {
       -- What Google groups to check for membership in
       allowed_groups = {
           type = "array",
-          required = true,
+          required = false,
           elements = typedefs.name,
+          default = {},
       },
     },
     {
