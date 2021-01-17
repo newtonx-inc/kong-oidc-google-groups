@@ -45,6 +45,7 @@ Show upstream request
 - Set up a GCP OAuth client (and thus a Client ID and Client Secret) and consent screen. [See instructions]()
 - Create one or more groups and add users to them in Google Workspace. These will be your "allowed groups" for Google 
   Groups based authorization after OIDC authentication is done.
+- Kong (This plugin tested in production w/ version 2.2)
   
 ## Plugin dependencies
 The following are some of the main software dependencies for this plugin. The Rockspec will automatically load these.
@@ -66,10 +67,6 @@ The following are some of the main software dependencies for this plugin. The Ro
 | db_cache_period_secs | 300     | No        | The time period in seconds for which to cache Google Group membership information. This helps reduce latency and API calls to the Google Directory API                                       |
 
 # Development
-## Running Unit tests
-TODO
-## Running Integration tests
-TODO
 ## Publishing to LuaRocks
 TODO
 
