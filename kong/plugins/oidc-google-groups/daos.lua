@@ -16,7 +16,7 @@ return {
         google_user = {
           type      = "string",
           required  = true,
-          unique    = false,
+          unique    = true,
         },
       },
       {
