@@ -68,7 +68,11 @@ The following are some of the main software dependencies for this plugin. The Ro
 
 # Development
 ## Publishing to LuaRocks
-TODO
+1. Update the Rockspec file name and version 
+2. Update the git tag when ready for a release: `git tag v0.1-0`
+3. Run `git push`
+4. If authorized, follow the instructions here to upload https://github.com/luarocks/luarocks/wiki/Creating-a-rock
+
 
 
 
