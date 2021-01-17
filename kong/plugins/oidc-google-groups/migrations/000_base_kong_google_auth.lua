@@ -5,7 +5,7 @@ return {
                 google_user VARCHAR (255) PRIMARY KEY,
                 google_groups TEXT [],
                 created_at TIMESTAMP,
-                updated_at TIMESTAMP,
+                updated_at TIMESTAMP
             );
 
             DO $$
@@ -21,7 +21,7 @@ return {
                 value TEXT,
                 expires_at FLOAT,
                 created_at TIMESTAMP,
-                updated_at TIMESTAMP,
+                updated_at TIMESTAMP
             );
 
             DO $$
@@ -39,7 +39,7 @@ return {
                 google_user text PRIMARY KEY,
                 google_groups set<text>,
                 created_at timestamp,
-                updated_at timestamp,
+                updated_at timestamp
             );
 
             CREATE INDEX IF NOT EXISTS ON google_group_memberships(google_user);
@@ -49,7 +49,7 @@ return {
                 value text,
                 expires_at float,
                 created_at timestamp,
-                updated_at timestamp,
+                updated_at timestamp
             );
 
             CREATE INDEX IF NOT EXISTS ON google_tokens(name);
