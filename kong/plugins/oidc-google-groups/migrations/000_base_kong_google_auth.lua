@@ -1,5 +1,5 @@
 return {
-    postgresql = {
+    postgres = {
         up = [[
             CREATE TABLE IF NOT EXISTS google_group_memberships (
                 google_user VARCHAR (255) PRIMARY KEY,
