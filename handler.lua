@@ -15,7 +15,7 @@ GoogleAuthHandler.PRIORITY = 1001
 -- Base Plugin handler, it's only role is to instantiate itself
 -- with a name. The name is your plugin name as it will be printed in the logs.
 function GoogleAuthHandler:new()
-    GoogleAuthHandler.super.new(self, "kong-google-auth")
+    GoogleAuthHandler.super.new(self, "oidc-google-groups")
 end
 
 function GoogleAuthHandler:init_worker()
