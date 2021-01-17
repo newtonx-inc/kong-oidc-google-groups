@@ -1,8 +1,8 @@
 local base64 = require('base64')
 local JSON = require("JSON")
-local Memberships = require('memberships')
-local Utilities = require('utilities')
-local Filters = require('filters')
+local Memberships = require('kong.plugins.oidc-google-groups.memberships')
+local Utilities = require('kong.plugins.oidc-google-groups.utilities')
+local Filters = require('kong.plugins.oidc-google-groups.filters')
 
 local Access = {}
 

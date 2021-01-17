@@ -1,6 +1,6 @@
 local JSON = require("JSON")
 local http = require("resty.http")
-local googleoauth = require('googleoauth')
+local googleoauth = require('kong.plugins.oidc-google-groups.googleoauth')
 
 
 local DirectoryApi = {

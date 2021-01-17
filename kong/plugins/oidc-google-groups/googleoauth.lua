@@ -1,6 +1,6 @@
 local http = require("resty.http")
-local JSON = require("JSON")
 local jwt = require('resty.jwt')
+local JSON = require("JSON")
 
 local googleOAuthAccessToken = "google-oauth2-access-token"
 

@@ -1,4 +1,4 @@
-local GoogleDirectoryApi = require('directoryapi')
+local GoogleDirectoryApi = require('kong.plugins.oidc-google-groups.directoryapi')
 
 -- Memberships
 local Memberships = {
