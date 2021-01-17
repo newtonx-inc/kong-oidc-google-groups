@@ -119,6 +119,7 @@ function Memberships:new(config, user)
     -- :param user: The user to check for membership
     self.config = config
     self.user = user
+    return Memberships
 end
 
 function Memberships:checkMemberships()

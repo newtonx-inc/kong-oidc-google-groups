@@ -5,6 +5,7 @@ local Filters = {
 function Filters:new(config)
     -- Constructor
     self.config = config
+    return Filters
 end
 
 function Filters:checkMethod()

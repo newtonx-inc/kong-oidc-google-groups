@@ -58,6 +58,7 @@ function DirectoryApi:new(user, config)
     -- :param config: The plugin configuration object
     self.user = user
     self.config = config
+    return DirectoryApi
 end
 
 function DirectoryApi:checkMembership()

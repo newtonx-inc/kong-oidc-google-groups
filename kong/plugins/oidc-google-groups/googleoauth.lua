@@ -155,6 +155,7 @@ function OAuth:new(config)
     -- Constructor
     -- :param config: The Kong plugin configuration object
     self.config = config
+    return OAuth
 end
 
 function OAuth:authenticate()
