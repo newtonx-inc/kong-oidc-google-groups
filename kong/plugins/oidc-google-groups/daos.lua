@@ -27,7 +27,9 @@ return {
         google_groups = {
           type      = "array",
           required  = true,
-          unique    = false,
+          elements  = {
+            type = "string",
+          },
         },
       },
     },
