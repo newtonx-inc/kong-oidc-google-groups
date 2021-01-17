@@ -27,16 +27,16 @@ dependencies = {
 build = {
    type = "builtin",
    modules = {
-      ["kong.plugins.oidc-google-groups.filters"] = "kong/plugins/oidc-google-groups/filters.lua",
-      ["kong.plugins.oidc-google-groups.access"] = "kong/plugins/oidc-google-groups/access.lua",
-      ["kong.plugins.oidc-google-groups.daos"] = "kong/plugins/oidc-google-groups/daos.lua",
-      ["kong.plugins.oidc-google-groups.directoryapi"] = "kong/plugins/oidc-google-groups/directoryapi.lua",
-      ["kong.plugins.oidc-google-groups.googleoauth"] = "kong/plugins/oidc-google-groups/googleoauth.lua",
-      ["kong.plugins.oidc-google-groups.handler"] = "kong/plugins/oidc-google-groups/handler.lua",
-      ["kong.plugins.oidc-google-groups.memberships"] = "kong/plugins/oidc-google-groups/memberships.lua",
-      ["kong.plugins.oidc-google-groups.schema"] = "kong/plugins/oidc-google-groups/schema.lua",
-      ["kong.plugins.oidc-google-groups.utilities"] = "kong/plugins/oidc-google-groups/utilities.lua",
-      ["kong.plugins.oidc-google-groups.migrations.000_base_kong_google_auth"] = "kong/plugins/oidc-google-groups/migrations/000_base_kong_google_auth.lua",
-      ["kong.plugins.oidc-google-groups.migrations.init"] = "kong/plugins/oidc-google-groups/migrations/init.lua",
+      ["kong.plugins.oidc-google-groups.filters"] = "filters.lua",
+      ["kong.plugins.oidc-google-groups.access"] = "access.lua",
+      ["kong.plugins.oidc-google-groups.daos"] = "daos.lua",
+      ["kong.plugins.oidc-google-groups.directoryapi"] = "directoryapi.lua",
+      ["kong.plugins.oidc-google-groups.googleoauth"] = "googleoauth.lua",
+      ["kong.plugins.oidc-google-groups.handler"] = "handler.lua",
+      ["kong.plugins.oidc-google-groups.memberships"] = "memberships.lua",
+      ["kong.plugins.oidc-google-groups.schema"] = "schema.lua",
+      ["kong.plugins.oidc-google-groups.utilities"] = "utilities.lua",
+      ["kong.plugins.oidc-google-groups.migrations.000_base_kong_google_auth"] = "migrations/000_base_kong_google_auth.lua",
+      ["kong.plugins.oidc-google-groups.migrations.init"] = "migrations/init.lua",
    }
 }
