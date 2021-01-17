@@ -9,6 +9,9 @@ return {
       {
         -- Inserted by the DAO itself
         created_at = typedefs.auto_timestamp_s,
+      },
+      {
+        -- Inserted by the DAO itself
         updated_at = typedefs.auto_timestamp_s,
       },
       {
