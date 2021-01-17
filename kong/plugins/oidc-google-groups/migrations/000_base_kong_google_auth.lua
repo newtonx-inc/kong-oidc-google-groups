@@ -3,7 +3,7 @@ return {
         up = [[
             CREATE TABLE IF NOT EXISTS google_group_memberships (
                 google_user VARCHAR (255) PRIMARY KEY,
-                google_groups TEXT []
+                google_groups TEXT [],
                 created_at TIMESTAMP,
                 updated_at TIMESTAMP,
             );
@@ -31,6 +31,28 @@ return {
             EXCEPTION WHEN UNDEFINED_COLUMN THEN
             -- Do nothing, accept existing state
             END$$;
+        ]],
+    },
+    cassandra = {
+        up = [[
+            CREATE TABLE IF NOT EXISTS google_group_memberships (
+                google_user text PRIMARY KEY,
+                google_groups set<text>,
+                created_at timestamp,
+                updated_at timestamp,
+            );
+
+            CREATE INDEX IF NOT EXISTS ON google_group_memberships(google_user);
+
+            CREATE TABLE IF NOT EXISTS google_tokens (
+                name text PRIMARY KEY,
+                value text,
+                expires_at float,
+                created_at timestamp,
+                updated_at timestamp,
+            );
+
+            CREATE INDEX IF NOT EXISTS ON google_tokens(name);
         ]],
     },
 }
