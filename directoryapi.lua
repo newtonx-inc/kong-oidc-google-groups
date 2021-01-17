@@ -15,11 +15,11 @@ local function callDirectoryApi(user, group)
     -- Returns: bool
 
     -- Authenticate
-    local authSvc = googleoauth.new(self.config)
+    local authSvc = googleoauth:new(self.config)
     local accessToken, _ = authSvc:authenticate()
 
     if not accessToken then
-        ngx.log(ngx.ERR, "[directoryapi.lua] : Could not fetch Google access token! Aborting...")
+        kong.log.err("[directoryapi.lua] : Could not fetch Google access token! Aborting...")
         return false
     end
 
@@ -38,11 +38,11 @@ local function callDirectoryApi(user, group)
     }
     local res, err = httpc:request_uri(url, params)
     if err or not res then
-        ngx.log(ngx.ERR, "[directoryapi.lua] : Error when calling Google Directory API endpoint: " .. err)
+        kong.log.err("[directoryapi.lua] : Error when calling Google Directory API endpoint: " .. err)
         return false
     end
-    ngx.log(ngx.DEBUG, "[directoryapi.lua] : Google Directory endpoint status: " .. res.status)
-    ngx.log(ngx.DEBUG, "[directoryapi.lua] : Google Directory endpoint response: " .. res.body)
+    kong.log.debug("[directoryapi.lua] : Google Directory endpoint status: " .. res.status)
+    kong.log.debug("[directoryapi.lua] : Google Directory endpoint response: " .. res.body)
     if rest.status ~= 200 then
         return false
     end
@@ -67,8 +67,8 @@ function DirectoryApi:checkMembership()
     -- Iterate through groups
     local isAMember = false
     local memberOfGroup = nil
-    for _, group in ipairs(self.config.allowedGroups) do
-        ngx.log(ngx.DEBUG, "[directoryapi.lua] : Calling Directory API for group: " .. group)
+    for _, group in ipairs(self.config.allowed_groups) do
+        kong.log.debug("[directoryapi.lua] : Calling Directory API for group: " .. group)
         isAMember = callDirectoryApi(self.user, group)
         -- If a membership is identified, break the loop and return true
         if isAMember then
@@ -76,7 +76,7 @@ function DirectoryApi:checkMembership()
             break
         end
     end
-    ngx.log(ngx.DEBUG, "[directoryapi.lua] : At least one membership to an allowed group found? : " .. tostring(isAMember))
+    kong.log.debug("[directoryapi.lua] : At least one membership to an allowed group found? : " .. tostring(isAMember))
     return isAMember, memberOfGroup
 end
 

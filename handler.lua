@@ -3,13 +3,12 @@
 -- can be called from your child implementation and will print logs
 -- in your `error.log` file (where all logs are printed).
 local BasePlugin = require "kong.plugins.base_plugin"
-local access = require "kong.plugins.kong-google-auth.access"
+local Access = require('access')
 
 local GoogleAuthHandler = BasePlugin:extend()
 
 GoogleAuthHandler.VERSION = "0.0.0"
--- Set priority to run after OAuth and OIDC
-GoogleAuthHandler.PRIORITY = 1010
+GoogleAuthHandler.PRIORITY = 1001
 
 
 -- Your plugin handler's constructor. If you are extending the
@@ -32,7 +31,7 @@ function GoogleAuthHandler:access(config)
     -- (will log that your plugin is entering this context)
     GoogleAuthHandler.super.access(self)
     -- Implement any custom logic here
-    access.execute(config)
+    Access:start(config)
 end
 
 

@@ -1,6 +1,5 @@
 local http = require("resty.http")
 local JSON = require("JSON")
---local pretty = require('pl.pretty')
 local jwt = require('resty.jwt')
 
 local googleOAuthAccessToken = "google-oauth2-access-token"
@@ -10,30 +9,25 @@ local OAuth = {
     scopes = "https://www.googleapis.com/auth/admin.directory.group",
 }
 
-local function fetchServiceAccount()
-    -- Tries to fetch a service account from the environment and parses it to a table
+local function fetchServiceAccount(config)
+    -- Tries to fetch a service account from the plugin configuration and parses it to a table
     -- Returns a table of the service account, or nil if not found
-    local svcAcct = os.getenv(self.config.service_account_env_name)
+    local svcAcct = config.service_account
     if svcAcct == nil or svcAcct == '' then
         kong.log.err("No service account found. Make sure to load one in GOOGLE_APPLICATION_CREDENTIALS")
         return nil
     end
-    --local svcAcct = '/usr/local/share/lua/5.1/kong/plugins/oidc/serviceaccount.json'
-    --local file, err = io.open(svcAcct, "rb")
-    --if err then
-    --    ngx.log(ngx.DEBUG, "Error opening file: " .. err)
-    --    return nil
-    --end
-    --local svcAcctStr = file:read "*a"
-    return JSON:decode(svcAcct)
+
+    return JSON:decode(config.service_account)
 end
 
-local function generateJWT(scopes, delegatedUser)
+local function generateJWT(config, scopes, delegatedUser)
     -- Generates a Google OAuth2 compliant JWT from a service account
-    -- scopes: space delimited set of scopes for the Google API
-    -- delegatedUser: the email address of the user who is delegating access
+    -- :param config: The plugin configuration
+    -- :param scopes: space delimited set of scopes for the Google API
+    -- :param delegatedUser: the email address of the user who is delegating access
     -- Returns: a JWT token string or nil
-    local svcAcct = fetchServiceAccount()
+    local svcAcct = fetchServiceAccount(config)
     if svcAcct == nil then
         ngx.log(ngx.DEBUG, "[googleoauth.lua] No service account found, no JWT generated.")
         return nil
@@ -174,7 +168,7 @@ function OAuth:authenticate()
     -- If no access token in cache, go through normal flow
     if accessToken == nil then
         -- Generate JWT
-        local jwtToken = generateJWT(self.scopes, self.config.admin_user)
+        local jwtToken = generateJWT(self.config, self.scopes, self.config.admin_user)
         ngx.log(ngx.DEBUG, "[googleoauth.lua] Called generateJWT, which returned base64 encoded token: " .. jwtToken)
         -- If could not generate, fail gracefully by returning nil, nil
         if jwtToken == nil then

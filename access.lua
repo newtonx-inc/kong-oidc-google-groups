@@ -1,30 +1,53 @@
 local base64 = require('base64')
-local json = require('json')
-local googleapi = require('kong.plugins.kong-google-auth.googleapi')
+local JSON = require("JSON")
+local Memberships = require('memberships')
+local Utilities = require('utilities')
+local Filters = require('filters')
 
 local Access = {}
 
-function Access.start(config)
-    -- TODO add in kong-oidc (simplified - don't need all the extra params)
-    -- TODO intercept user info and check for group membership
+function Access:start(config)
+    -- The main function for this plugin
+    -- Returns nothing. If successful, the request passes through to the upstream. If unsuccessful, a 403: Forbidden response is generated.
+
+    -- TODO add in kong-oidc (simplified - don't need all the extra params) - later
     -- TODO account for 429s or 4XXs from Google. Should have a way of alerting on this (Sentry?)
-    -- TODO - need to account for when allowedGroups is empty
-    -- * Identify user from Header * --
-    -- Try first the Kong OAuth2 header
-
-    -- Try second the HTTP_X_USERINFO header from OIDC
 
 
-    -- * Check if user belongs to one of the allowedGroups * --
-    -- If user doesn't exist, exit with 403
-    -- Check cached values first
-    -- If values expired, check using the Google APIs, below.
+    kong.log.debug("[access.lua] : Starting Kong Google Groups Authorization.")
 
-    -- Check using Google APIs
-    -- Store result in DB
+    -- Check various conditions
+    local filters = Filters:new(config)
+    -- Check if this plugin config specifies any allowed groups
+    if not filters:checkIfAllowedGroupsPresent() then
+        kong.log.debug("[access.lua] : No allowed groups found. Skipping Google Groups authorization.")
+        return
+    end
 
-    -- If user is part of an allowed group, proceed as normal
-    -- If user does not belong to one of the valid groups, exit with 403
+    -- Checks if this plugin should be applied to any specific paths
+    if not filters:checkPath() then
+        kong.log.debug("[access.lua] : No matching paths found. Skipping Google Groups authorization.")
+        return
+    end
+
+    -- Checks if this plugin should be applied to any specific methods
+    if not filters:checkMethod() then
+        kong.log.debug("[access.lua] : No matching methods found. Skipping Google Groups authorization.")
+        return
+    end
+
+
+    -- TEMP Try second the HTTP_X_USERINFO header from OIDC
+    local userHeaderValue = kong.request.get_header('HTTP_X_USERINFO')
+    local rawDecodedValue = base64.decode(userHeaderValue)
+    local parsedUserInfo = JSON:decode(rawDecodedValue)
+    local userEmail = parsedUserInfo['email']
+    -- Check if user belongs to one of the allowedGroups. If user doesn't exist, exit with 403
+    local m = Memberships:new(config, userEmail)
+    local res = m:checkMemberships()
+    if not res then
+        Utilities:exitWithForbidden()
+    end
 end
 
 return Access
