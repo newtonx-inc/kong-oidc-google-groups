@@ -94,13 +94,14 @@ local function setAccessTokenInCache(token, expiresAt)
     -- Persists access token and expiration date in db
     -- :param token: A token string representing the access token provided by Google OAuth
     -- :param expiresAt: Datetime of the expiration
-    local entity, err = kong.db.google_tokens:upsert({
+    local entity, err = kong.db.google_tokens:upsert(
         { name = googleOAuthAccessToken },
         {
+            name = googleOAuthAccessToken,
             value = token,
             expires_at = expiresAt
-        },
-    })
+        }
+    )
     if err then
         kong.log.err("Could not save GoogleOAuthAccessToken: " .. err)
     end

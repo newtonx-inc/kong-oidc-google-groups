@@ -8,14 +8,15 @@ local DirectoryApi = {
     config = nil,
 }
 
-local function callDirectoryApi(user, group)
+local function callDirectoryApi(user, group, config)
     -- Calls Google Directory API with provided user and group and determines whether the user belongs to the group
     -- :param user: The user to check (should be a plain email)
     -- :param group: The group to check if the user has membership to
+    -- :param config: The plugin configuration object
     -- Returns: bool
 
     -- Authenticate
-    local authSvc = googleoauth:new(self.config)
+    local authSvc = googleoauth:new(config)
     local accessToken, _ = authSvc:authenticate()
 
     if not accessToken then
@@ -43,11 +44,11 @@ local function callDirectoryApi(user, group)
     end
     kong.log.debug("[directoryapi.lua] : Google Directory endpoint status: " .. res.status)
     kong.log.debug("[directoryapi.lua] : Google Directory endpoint response: " .. res.body)
-    if rest.status ~= 200 then
+    if res.status ~= 200 then
         return false
     end
     local respBody = res.body
-    gx.log(ngx.DEBUG, "[directoryapi.lua] Response from Google Directory API (unparsed): " .. respBody)
+    ngx.log(ngx.DEBUG, "[directoryapi.lua] Response from Google Directory API (unparsed): " .. respBody)
     local parsedRespBody = JSON:decode(respBody)
     return parsedRespBody['isMember']
 end
@@ -70,7 +71,7 @@ function DirectoryApi:checkMembership()
     local memberOfGroup = nil
     for _, group in ipairs(self.config.allowed_groups) do
         kong.log.debug("[directoryapi.lua] : Calling Directory API for group: " .. group)
-        isAMember = callDirectoryApi(self.user, group)
+        isAMember = callDirectoryApi(self.user, group, self.config)
         -- If a membership is identified, break the loop and return true
         if isAMember then
             memberOfGroup = group

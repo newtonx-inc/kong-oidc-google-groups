@@ -19,7 +19,9 @@ return {
               allowed_groups = {
                   type = "array",
                   required = false,
-                  elements = typedefs.name,
+                  elements = {
+                      type = "string"
+                  },
                   default = {},
               },
             },

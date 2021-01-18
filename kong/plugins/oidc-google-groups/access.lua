@@ -38,7 +38,7 @@ function Access:start(config)
 
 
     -- TEMP Try second the HTTP_X_USERINFO header from OIDC
-    local userHeaderValue = kong.request.get_header('HTTP_X_USERINFO')
+    local userHeaderValue = kong.request.get_header('X-Userinfo')
     local rawDecodedValue = base64.decode(userHeaderValue)
     local parsedUserInfo = JSON:decode(rawDecodedValue)
     local userEmail = parsedUserInfo['email']

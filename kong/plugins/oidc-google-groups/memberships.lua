@@ -29,7 +29,7 @@ local function fetchMembershipFromCache(user)
     -- Check cache (and check DB as backup)
     local cache_key = kong.db.google_group_memberships:cache_key(user)
     local entity, err = kong.cache:get(cache_key, nil, fetchMembershipFromDB, cache_key)
-    if not entity then
+    if err then
         kong.log.err("[memberships.lua] Could not fetch fetch membership from Cache: " .. err)
         return nil, err
     end
@@ -49,12 +49,10 @@ local function isRecentMemberOfAllowedGroups(membership, allowedGroups, ttl)
     -- Iterate through all Google groups found in the membership record, then compare against the allowed groups to see if there is a match
     for _, g in ipairs(membership.google_groups) do
         for _, ag in ipairs(allowedGroups) do
-            local splittedGroupStr = g.split(':')
-            local groupName = splittedGroupStr[0]
+            local groupName, groupDate = string.match(g, "(.*):(.*)")
             -- If there is a matching group, check to make sure the record isn't stale
             ngx.log(ngx.DEBUG, "[memberships.lua] Comparing membership group: " .. groupName .. "with: " .. ag)
             if groupName == ag then
-                local groupDate = splittedGroupStr[1]
                 local currentUnixTimestamp = os.time(os.date("!*t"))
                 if groupDate <= currentUnixTimestamp - ttl then
                     return true
@@ -92,7 +90,7 @@ local function saveMembershipToDB(user, group)
     -- Examine what groups the user belongs to
     local groupMemberships = membership.google_groups
     for i, g in ipairs(groupMemberships) do
-        local groupName = g.split(':')[0]
+        local groupName, _ = string.match(g, "(.*):(.*)")
         if groupName == group then
             -- If matching group present, replace that value with group:expiration string (with new date) and continue
             groupMemberships[i] = group .. ":" .. currentUnixTimestamp
@@ -102,10 +100,10 @@ local function saveMembershipToDB(user, group)
         end
     end
     -- Update the record
-    local entity, err = kong.db.google_group_memberships:update({
+    local entity, err = kong.db.google_group_memberships:update(
         { google_user = user },
         { google_groups = groupMemberships }
-    })
+    )
 
     -- LOG any errors
     if not entity then
@@ -134,7 +132,7 @@ function Memberships:checkMemberships()
     end
 
     -- Then check Directory API if needed
-    local directorySvc = GoogleDirectoryApi.new(self.user, self.config)
+    local directorySvc = GoogleDirectoryApi:new(self.user, self.config)
     local isAMember, memberOfGroup = directorySvc:checkMembership()
 
     -- If group is allowed, add it to the db for that user
