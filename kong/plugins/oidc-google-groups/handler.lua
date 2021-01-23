@@ -7,8 +7,8 @@ local Access = require('kong.plugins.oidc-google-groups.access')
 
 local GoogleAuthHandler = BasePlugin:extend()
 
-GoogleAuthHandler.VERSION = "0.0.0"
-GoogleAuthHandler.PRIORITY = 990
+GoogleAuthHandler.VERSION = "0.2.0"
+GoogleAuthHandler.PRIORITY = 1000
 
 
 -- Your plugin handler's constructor. If you are extending the

@@ -74,6 +74,29 @@ return {
                   default = 300,
               },
             },
+            {
+              -- Where to redirect from OIDC
+              redirect_uri_path = {
+                  type = "string",
+                  required = false,
+              },
+            },
+            {
+              -- Absolute path used to logout from the OIDC RP
+              logout_path = {
+                  type = "string",
+                  required = false,
+                  default = '/logout',
+              },
+            },
+            {
+              -- Where to redirect to after logout
+              redirect_after_logout_uri = {
+                  type = "string",
+                  required = false,
+                  default = '/',
+              },
+            },
         },
       },
     },

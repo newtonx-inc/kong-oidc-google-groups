@@ -1,8 +1,8 @@
 package = "kong-oidc-google-groups"
-version = "0.1-17"
+version = "0.1-18"
 source = {
    url = "git://github.com/newtonx-inc/kong-oidc-google-groups",
-   tag = "v0.1-17"
+   tag = "v0.1-18"
 }
 description = {
    summary = "A Kong plugin for implementing Google OIDC, with additional Google Groups-based authorization",
@@ -36,6 +36,7 @@ build = {
       ["kong.plugins.oidc-google-groups.memberships"] = "kong/plugins/oidc-google-groups/memberships.lua",
       ["kong.plugins.oidc-google-groups.schema"] = "kong/plugins/oidc-google-groups/schema.lua",
       ["kong.plugins.oidc-google-groups.utilities"] = "kong/plugins/oidc-google-groups/utilities.lua",
+      ["kong.plugins.oidc-google-groups.session"] = "kong/plugins/oidc-google-groups/session.lua",
       ["kong.plugins.oidc-google-groups.migrations.000_base_kong_google_auth"] = "kong/plugins/oidc-google-groups/migrations/000_base_kong_google_auth.lua",
       ["kong.plugins.oidc-google-groups.migrations.init"] = "kong/plugins/oidc-google-groups/migrations/init.lua",
    }

@@ -55,16 +55,19 @@ The following are some of the main software dependencies for this plugin. The Ro
 
 # Configuration
 
-| Parameter            | Default | Required? | Description                                                                                                                                                                                  |
-|----------------------|---------|-----------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| client_id            |         | Yes       | The OAuth Client ID of your client in GCP used for performing OIDC auth                                                                                                                      |
-| client_secret        |         | Yes       | The OAuth Client Secret of your client in GCP used for performing OIDC auth                                                                                                                  |
-| logout_path          |         | No        | Absolute path used to logout from the OIDC Relying Party (RP)                                                                                                                 |
-| service_account      |         | Yes       | The json string representation of your GCP service account                                                                                                                                   |
-| admin_user           |         | Yes       | The email address of a user in your Google Workspace who has admin privileges. This is used to look up info on the Google Directory API                                                      |
-| allowed_groups       | {}      | No        | A list of email addresses of groups in your org that you want to authorize. Any user belonging to one of these groups will be let through. If left blank, all users will be allowed through. |
-| paths                | {"/"}   | No        | A list of paths to apply this plugin to                                                                                                                                                      |
-| db_cache_period_secs | 300     | No        | The time period in seconds for which to cache Google Group membership information. This helps reduce latency and API calls to the Google Directory API                                       |
+| Parameter                 | Default          | Required? | Description                                                                                                                                                                                  |
+|---------------------------|------------------|-----------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| client_id                 |                  | Yes       | The OAuth Client ID of your client in GCP used for performing OIDC auth                                                                                                                      |
+| client_secret             |                  | Yes       | The OAuth Client Secret of your client in GCP used for performing OIDC auth                                                                                                                  |
+| service_account           |                  | Yes       | The json string representation of your GCP service account                                                                                                                                   |
+| admin_user                |                  | Yes       | The email address of a user in your Google Workspace who has admin privileges. This is used to look up info on the Google Directory API                                                      |
+| allowed_groups            | {}               | No        | A list of email addresses of groups in your org that you want to authorize. Any user belonging to one of these groups will be let through. If left blank, all users will be allowed through. |
+| paths                     | {"/"}            | No        | A list of paths to apply this plugin to                                                                                                                                                      |
+| methods                   | all HTTP methods | No        | A list of HTTP methods (e.g. GET, POST) to apply this plugin to.                                                                                                                             |
+| db_cache_period_secs      | 300              | No        | The time period in seconds for which to cache Google Group membership information. This helps reduce latency and API calls to the Google Directory API                                       |
+| redirect_uri_path         | /cb              | No        | Where to redirect from OIDC                                                                                                                                                                  |
+| logout_path               | /logout          | No        | Absolute path used to logout from the OIDC RP                                                                                                                                                |
+| redirect_after_logout_uri | /                | No        | Where to redirect to after logout                                                                                                                                                            |
 
 # Development
 ## Publishing to LuaRocks
