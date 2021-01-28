@@ -1,3 +1,5 @@
+local JSON = require("JSON")
+
 -- Utilities
 local Utilities = {}
 
@@ -82,7 +84,8 @@ end
 
 function Utilities:injectIDToken(idToken)
   -- TODO - change this to the standard json lib
-  local tokenStr = cjson.encode(idToken)
+  --local tokenStr = cjson.encode(idToken)
+  local tokenStr = JSON:encode(idToken)
   ngx.req.set_header("X-ID-Token", ngx.encode_base64(tokenStr))
 end
 
@@ -91,7 +94,8 @@ function Utilities:injectUser(user)
   tmp_user.id = user.sub
   tmp_user.username = user.preferred_username
   ngx.ctx.authenticated_credential = tmp_user
-  local userinfo = cjson.encode(user)
+  --local userinfo = cjson.encode(user)
+  local userinfo = JSON:encode(user)
   ngx.req.set_header("X-Userinfo", ngx.encode_base64(userinfo))
 end
 
