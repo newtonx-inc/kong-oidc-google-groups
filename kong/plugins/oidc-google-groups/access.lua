@@ -9,12 +9,11 @@ local Access = {
 function Access:callRestyOIDC()
     -- Calls resty-oidc with options
     -- Returns: response or nil
-    ngx.log(ngx.DEBUG, "OidcHandler calling authenticate, requested path: " .. ngx.var.request_uri)
+    kong.log.debug("OidcHandler calling authenticate, requested path: " .. ngx.var.request_uri)
     local res, err = require("resty.openidc").authenticate(self.oidcConfig)
     if err then
-        -- TODO - Change to kong, and allow this configuration parameter (currently it's not in schema)
         if oidcConfig.recovery_page_path then
-            ngx.log(ngx.DEBUG, "Entering recovery page: " .. self.oidcConfig.recovery_page_path)
+            kong.log.debug("Entering recovery page: " .. self.oidcConfig.recovery_page_path)
             ngx.redirect(self.oidcConfig.recovery_page_path)
         end
         Utilities:exit(500, err, ngx.HTTP_INTERNAL_SERVER_ERROR)
@@ -71,7 +70,7 @@ function Access:start(config)
     -- Load config object to prepare for sending resty-oidc
     self.oidcConfig = Utilities:getOptionsForRestyOIDC(config)
     local user = self:handleOIDC()
-    ngx.log(ngx.DEBUG, "OidcHandler done")
+    kong.log.debug("OidcHandler done")
 
     -- TODO account for 429s or 4XXs from Google. Should have a way of alerting on this (Sentry?)
 
@@ -84,7 +83,7 @@ function Access:start(config)
         if not res then
             Utilities:exitWithForbidden()
         end
-        ngx.log(ngx.DEBUG, "[access.lua] : Authorized via Google Groups. Continuing to upstream...")
+        kong.log.debug("[access.lua] : Authorized via Google Groups. Continuing to upstream...")
         return
     end
     Utilities:exit(500, 'Could not get user information from Google OIDC to authenticate')

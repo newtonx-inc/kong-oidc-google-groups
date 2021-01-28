@@ -111,6 +111,14 @@ return {
                   default = '/',
               },
             },
+            {
+              -- Where to redirect to on OIDC failure
+              recovery_page_path = {
+                  type = "string",
+                  required = false,
+                  default = '/',
+              },
+            },
         },
       },
     },

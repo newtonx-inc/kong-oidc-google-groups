@@ -51,7 +51,7 @@ local function isRecentMemberOfAllowedGroups(membership, allowedGroups, ttl)
         for _, ag in ipairs(allowedGroups) do
             local groupName, groupDate = string.match(g, "(.*):(.*)")
             -- If there is a matching group, check to make sure the record isn't stale
-            ngx.log(ngx.DEBUG, "[memberships.lua] Comparing membership group: " .. groupName .. "with: " .. ag)
+            kong.log.debug("[memberships.lua] Comparing membership group: " .. groupName .. "with: " .. ag)
             if groupName == ag then
                 local currentUnixTimestamp = os.time(os.date("!*t"))
                 if groupDate <= currentUnixTimestamp - ttl then

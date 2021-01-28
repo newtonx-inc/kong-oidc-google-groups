@@ -29,10 +29,10 @@ local function generateJWT(config, scopes, delegatedUser)
     -- Returns: a JWT token string or nil
     local svcAcct = fetchServiceAccount(config)
     if svcAcct == nil then
-        ngx.log(ngx.DEBUG, "[googleoauth.lua] No service account found, no JWT generated.")
+        kong.log.debug("[googleoauth.lua] No service account found, no JWT generated.")
         return nil
     end
-    ngx.log(ngx.DEBUG, "[googleoauth.lua] Fetched service account for Google OAuth: ")
+    kong.log.debug("[googleoauth.lua] Fetched service account for Google OAuth: ")
     --pretty.dump(svcAcct)
     local currentUnixTimestamp = os.time(os.date("!*t"))
     local claimSet = {
@@ -59,7 +59,7 @@ local function requestAccessToken(jwtToken)
     -- :param jwtToken: A string representation of a valid base64 encoded JWT
     -- Returns: the access token, and the expiration time expressed as a unix timestamp or (nil, nil) if request unsuccessful
     local reqBody = "grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Ajwt-bearer&assertion=" .. jwtToken
-    ngx.log(ngx.DEBUG, "[googleoauth.lua] in requestAccessToken with body: " .. reqBody)
+    kong.log.debug("[googleoauth.lua] in requestAccessToken with body: " .. reqBody)
     local headers = {
         ["Content-Type"] = "application/x-www-form-urlencoded",
         ["content-length"] = string.len(reqBody)
@@ -75,16 +75,16 @@ local function requestAccessToken(jwtToken)
     }
     local res, err2 = httpc:request_uri(url, params)
     if err2 or not res then
-        ngx.log(ngx.ERR, "[googleoauth.lua] : Error when calling Google OAuth token endpoint: " .. err2)
+        kong.log.err("[googleoauth.lua] : Error when calling Google OAuth token endpoint: " .. err2)
         return nil, nil
     end
-    ngx.log(ngx.DEBUG, "[googleoauth.lua] : Google OAuth token endpoint status: " .. res.status)
-    ngx.log(ngx.DEBUG, "[googleoauth.lua] : Google OAuth token endpoint response: " .. res.body)
+    kong.log.debug("[googleoauth.lua] : Google OAuth token endpoint status: " .. res.status)
+    kong.log.debug("[googleoauth.lua] : Google OAuth token endpoint response: " .. res.body)
     if res.status ~= 200 then
         return nil, nil
     end
     local respBody = res.body
-    ngx.log(ngx.DEBUG, "[googleoauth.lua] in requestAccessToken, made request. Response (unparsed): " .. respBody)
+    kong.log.debug("[googleoauth.lua] in requestAccessToken, made request. Response (unparsed): " .. respBody)
     local parsedRespBody = JSON:decode(respBody)
     local expiresAt = parsedRespBody['expires_in'] + os.time(os.date("!*t"))
     return parsedRespBody['access_token'], expiresAt
@@ -136,7 +136,6 @@ local function retrieveAccessTokenFromCache()
     end
     local cache_key = kong.db.google_tokens:cache_key(googleOAuthAccessToken)
     local entity, err = kong.cache:get(cache_key, nil, load_token, cache_key)
-    -- TODO
     if err then
         kong.log.err("[googleoauth.lua] Could not fetch fetch GoogleOAuthAccessToken from Cache: " .. err)
         return nil, nil
@@ -149,8 +148,7 @@ local function retrieveAccessTokenFromCache()
 
     -- Check if token is stale first before returning
     local currentUnixTimestamp = os.time(os.date("!*t"))
-    ngx.log(ngx.DEBUG, "[googleoauth.lua] Access token expires at: ", entity.expires_at)
-    -- TODO - The date formats here need some investigation!
+    kong.log.debug("[googleoauth.lua] Access token expires at: ", entity.expires_at)
     if entity.expires_at <= currentUnixTimestamp then
         kong.log.debug("[googleoauth.lua] Access token has already expired!")
         return nil, nil
@@ -177,15 +175,15 @@ function OAuth:authenticate()
     if accessToken == nil then
         -- Generate JWT
         local jwtToken = generateJWT(self.config, self.scopes, self.config.admin_user)
-        ngx.log(ngx.DEBUG, "[googleoauth.lua] Called generateJWT, which returned base64 encoded token: " .. jwtToken)
+        kong.log.debug("[googleoauth.lua] Called generateJWT, which returned base64 encoded token: " .. jwtToken)
         -- If could not generate, fail gracefully by returning nil, nil
         if jwtToken == nil then
-            ngx.log(ngx.DEBUG, "[googleoauth.lua] Could not get a token. Authentication failed." )
+            kong.log.debug("[googleoauth.lua] Could not get a token. Authentication failed." )
             return nil, nil
         end
         -- Otherwise if successful, request access token
         accessToken, accessTokenExpiresAt = requestAccessToken(jwtToken)
-        ngx.log(ngx.DEBUG, "[googleoauth.lua] Called requestAccessToken, which gave an access token value of: " .. accessToken)
+        kong.log.debug("[googleoauth.lua] Called requestAccessToken, which gave an access token value of: " .. accessToken)
         -- If access token was present, set in db/cache
         setAccessTokenInCache(accessToken, accessTokenExpiresAt)
     end

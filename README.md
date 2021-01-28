@@ -68,6 +68,7 @@ The following are some of the main software dependencies for this plugin. The Ro
 | redirect_uri_path         | /cb              | No        | Where to redirect from OIDC                                                                                                                                                                  |
 | logout_path               | /logout          | No        | Absolute path used to logout from the OIDC RP                                                                                                                                                |
 | redirect_after_logout_uri | /                | No        | Where to redirect to after logout                                                                                                                                                            |
+| recovery_page_path        | /                | No        | Where to redirect to on OIDC failure                                                                                                                                                            |
 
 # Development
 ## Publishing to LuaRocks
@@ -75,7 +76,3 @@ The following are some of the main software dependencies for this plugin. The Ro
 2. Update the git tag when ready for a release: `git tag v0.1-0`
 3. Run `git push`
 4. If authorized, follow the instructions here to upload https://github.com/luarocks/luarocks/wiki/Creating-a-rock
-
-
-
-

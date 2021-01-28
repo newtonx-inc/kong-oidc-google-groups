@@ -12,7 +12,6 @@ function Utilities:exitWithForbidden(msg)
 end
 
 -- Kong-OIDC
--- TODO - replace ngx with kong where possible, clean up headers
 local function parseFilters(csvFilters)
   local filters = {}
   if (not (csvFilters == nil)) then
@@ -25,7 +24,6 @@ end
 
 function Utilities:getRedirectUriPath()
   local function dropQuery()
-    -- TODO change to kong
     local uri = ngx.var.request_uri
     local x = uri:find("?")
     if x then
@@ -36,7 +34,6 @@ function Utilities:getRedirectUriPath()
   end
 
   local function tackleSlash(path)
-    -- TODO change to KONG
     local args = ngx.req.get_uri_args()
     if args and args.code then
       return path
@@ -67,7 +64,6 @@ function Utilities:getOptionsForRestyOIDC(config)
     ssl_verify = 'no',
     token_endpoint_auth_method = 'client_secret_post',
     filters = parseFilters(nil),
-    -- TODO how does logging out work
     logout_path = config.logout_path,
     redirect_after_logout_uri = config.redirect_after_logout_uri,
   }
@@ -78,13 +74,10 @@ function Utilities:exit(httpStatusCode, message)
 end
 
 function Utilities:injectAccessToken(accessToken)
-    -- TODO change these to Kong
   ngx.req.set_header("X-Access-Token", accessToken)
 end
 
 function Utilities:injectIDToken(idToken)
-  -- TODO - change this to the standard json lib
-  --local tokenStr = cjson.encode(idToken)
   local tokenStr = JSON:encode(idToken)
   ngx.req.set_header("X-ID-Token", ngx.encode_base64(tokenStr))
 end
@@ -94,7 +87,6 @@ function Utilities:injectUser(user)
   tmp_user.id = user.sub
   tmp_user.username = user.preferred_username
   ngx.ctx.authenticated_credential = tmp_user
-  --local userinfo = cjson.encode(user)
   local userinfo = JSON:encode(user)
   ngx.req.set_header("X-Userinfo", ngx.encode_base64(userinfo))
 end

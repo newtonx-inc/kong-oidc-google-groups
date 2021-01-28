@@ -48,7 +48,7 @@ local function callDirectoryApi(user, group, config)
         return false
     end
     local respBody = res.body
-    ngx.log(ngx.DEBUG, "[directoryapi.lua] Response from Google Directory API (unparsed): " .. respBody)
+    kong.log.debug("[directoryapi.lua] Response from Google Directory API (unparsed): " .. respBody)
     local parsedRespBody = JSON:decode(respBody)
     return parsedRespBody['isMember']
 end
