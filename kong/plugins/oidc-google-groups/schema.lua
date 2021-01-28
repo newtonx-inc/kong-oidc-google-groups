@@ -16,6 +16,20 @@ return {
             -- Describe your plugin's configuration's schema here.
             {
               -- What Google groups to check for membership in
+              client_id = {
+                  type = "string",
+                  required = true,
+              },
+            },
+            {
+              -- What Google groups to check for membership in
+              client_secret = {
+                  type = "string",
+                  required = true,
+              },
+            },
+            {
+              -- What Google groups to check for membership in
               allowed_groups = {
                   type = "array",
                   required = false,
