@@ -129,8 +129,14 @@ local function retrieveAccessTokenFromCache()
     -- Returns: token, expiration date
 
     -- Check cache (and check DB as backup)
+    local function load_token()
+        return kong.db.google_tokens:select({
+            name = googleOAuthAccessToken,
+        })
+    end
     local cache_key = kong.db.google_tokens:cache_key(googleOAuthAccessToken)
-    local entity, err = kong.cache:get(cache_key, nil, retrieveAccessTokenFromDB, cache_key)
+    local entity, err = kong.cache:get(cache_key, nil, load_token, cache_key)
+    -- TODO
     if err then
         kong.log.err("[googleoauth.lua] Could not fetch fetch GoogleOAuthAccessToken from Cache: " .. err)
         return nil, nil

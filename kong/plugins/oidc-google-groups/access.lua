@@ -84,6 +84,8 @@ function Access:start(config)
         if not res then
             Utilities:exitWithForbidden()
         end
+        ngx.log(ngx.DEBUG, "[access.lua] : Authorized via Google Groups. Continuing to upstream...")
+        return
     end
     Utilities:exit(500, 'Could not get user information from Google OIDC to authenticate')
 end

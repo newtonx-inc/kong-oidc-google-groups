@@ -128,7 +128,7 @@ function Memberships:checkMemberships()
     -- First with the database (actually with the cache)
     local membership, _ = fetchMembershipFromCache(self.user)
     if membership then
-        return isRecentMemberOfAllowedGroups(membership, self.confg.allowedGroups, self.config.db_cache_period_secs)
+        return isRecentMemberOfAllowedGroups(membership, self.config.allowedGroups, self.config.db_cache_period_secs)
     end
 
     -- Then check Directory API if needed
