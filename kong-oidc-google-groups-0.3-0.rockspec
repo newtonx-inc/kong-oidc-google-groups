@@ -1,8 +1,8 @@
 package = "kong-oidc-google-groups"
-version = "0.2-2"
+version = "0.3-0"
 source = {
    url = "git://github.com/newtonx-inc/kong-oidc-google-groups",
-   tag = "v0.2-2"
+   tag = "v0.3-0"
 }
 description = {
    summary = "A Kong plugin for implementing Google OIDC, with additional Google Groups-based authorization",

@@ -10,7 +10,15 @@ function Access:callRestyOIDC()
     -- Calls resty-oidc with options
     -- Returns: response or nil
     kong.log.debug("OidcHandler calling authenticate, requested path: " .. ngx.var.request_uri)
-    local res, err = require("resty.openidc").authenticate(self.oidcConfig)
+
+    -- Unauth action for resty oidc (for anonymous flow)
+    local unauth_action = nil
+    if self.oidcConfig.anonymous ~= "" and self.oidcConfig.anonymous ~= nil then
+        unauth_action = "pass"
+    end
+
+    -- Run resty oidc
+    local res, err = require("resty.openidc").authenticate(self.oidcConfig, nil, unauth_action)
     if err then
         if oidcConfig.recovery_page_path then
             kong.log.debug("Entering recovery page: " .. self.oidcConfig.recovery_page_path)
@@ -37,7 +45,11 @@ function Access:handleOIDC()
         end
         return response.user
     end
-    return nil
+
+    -- Set anonymous headers if necessary
+    if self.oidcConfig.anonymous ~= "" and self.oidcConfig.anonymous ~= nil then
+        Utilities:injectAnonymousConsumer(self.oidcConfig.anonymous)
+    end
 end
 
 function Access:start(config)
