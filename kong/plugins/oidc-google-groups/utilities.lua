@@ -1,4 +1,5 @@
 local JSON = require("JSON")
+local constants = require("kong.constants")
 
 -- Utilities
 local Utilities = {}
@@ -89,6 +90,23 @@ function Utilities:injectUser(user)
   ngx.ctx.authenticated_credential = tmp_user
   local userinfo = JSON:encode(user)
   ngx.req.set_header("X-Userinfo", ngx.encode_base64(userinfo))
+end
+
+function Utilities:injectAnonymousConsumer(anonymousUserId)
+  local consumer_cache_key, consumer, err
+  local cache = kong.cache
+  consumer_cache_key = kong.db.consumers:cache_key(anonymousUserId)
+  consumer, err      = cache:get(consumer_cache_key, nil,
+                                 kong.client.load_consumer,
+                                 anonymousUserId)
+  if err then
+    kong.log.err(err)
+    return false
+  end
+
+  ngx.req.set_header(constants.HEADERS.ANONYMOUS, true)
+  ngx.req.set_header(constants.HEADERS.CONSUMER_USERNAME, consumer.username)
+  ngx.req.set_header(constants.HEADERS.CONSUMER_ID, consumer.id)
 end
 
 

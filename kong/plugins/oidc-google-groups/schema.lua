@@ -119,6 +119,13 @@ return {
                   default = '/',
               },
             },
+            {
+              -- The id of an anonymous consumer
+              anonymous = {
+                  type = "string",
+                  required = false,
+              },
+            },
         },
       },
     },
