@@ -89,7 +89,9 @@ function Utilities:injectUser(user)
   tmp_user.username = user.preferred_username
   ngx.ctx.authenticated_credential = tmp_user
   local userinfo = JSON:encode(user)
-  ngx.req.set_header("X-Userinfo", ngx.encode_base64(userinfo))
+  ngx.req.set_header("X-User-Info", ngx.encode_base64(userinfo))
+  ngx.req.set_header("X-Auth-Mechanism", "google-oidc")
+  ngx.req.set_header(constants.HEADERS.CONSUMER_ID, user.email)
 end
 
 function Utilities:injectAnonymousConsumer(anonymousUserId)
@@ -107,6 +109,65 @@ function Utilities:injectAnonymousConsumer(anonymousUserId)
   ngx.req.set_header(constants.HEADERS.ANONYMOUS, true)
   ngx.req.set_header(constants.HEADERS.CONSUMER_USERNAME, consumer.username)
   ngx.req.set_header(constants.HEADERS.CONSUMER_ID, consumer.id)
+end
+
+local function set_consumer(consumer, credential)
+  kong.client.authenticate(consumer, credential)
+
+  local set_header = kong.service.request.set_header
+  local clear_header = kong.service.request.clear_header
+
+  if consumer and consumer.id then
+    set_header(constants.HEADERS.CONSUMER_ID, consumer.id)
+  else
+    clear_header(constants.HEADERS.CONSUMER_ID)
+  end
+
+  if consumer and consumer.custom_id then
+    set_header(constants.HEADERS.CONSUMER_CUSTOM_ID, consumer.custom_id)
+  else
+    clear_header(constants.HEADERS.CONSUMER_CUSTOM_ID)
+  end
+
+  if consumer and consumer.username then
+    set_header(constants.HEADERS.CONSUMER_USERNAME, consumer.username)
+  else
+    clear_header(constants.HEADERS.CONSUMER_USERNAME)
+  end
+
+  if credential and credential.client_id then
+    set_header(constants.HEADERS.CREDENTIAL_IDENTIFIER, credential.client_id)
+  else
+    clear_header(constants.HEADERS.CREDENTIAL_IDENTIFIER)
+  end
+
+  clear_header(constants.HEADERS.CREDENTIAL_USERNAME)
+
+  if credential then
+    clear_header(constants.HEADERS.ANONYMOUS)
+  else
+    set_header(constants.HEADERS.ANONYMOUS, true)
+  end
+end
+
+
+function Utilities:setConsumer(config)
+  -- Retrieve the consumer from the config and set it in the headers (important if doing multiple auth)
+  -- Returns: nil
+  if config.anonymous then
+    local consumer_cache_key = kong.db.consumers:cache_key(config.anonymous)
+    local consumer, err = kong.cache:get(consumer_cache_key, nil,
+            kong.client.load_consumer,
+            config.anonymous, true)
+    if err then
+      kong.log.err("[utilities.lua] : Error in fetching consumer" .. err)
+      return kong.response.error(err.status, err.message, err.headers)
+    end
+
+    set_consumer(consumer)
+  else
+    return kong.response.error(err.status, err.message, err.headers)
+  end
 end
 
 

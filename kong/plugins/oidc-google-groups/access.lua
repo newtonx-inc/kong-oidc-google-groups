@@ -9,15 +9,35 @@ local Access = {
 function Access:callRestyOIDC()
     -- Calls resty-oidc with options
     -- Returns: response or nil
-    kong.log.debug("OidcHandler calling authenticate, requested path: " .. ngx.var.request_uri)
 
-    -- Unauth action for resty oidc (for anonymous flow)
-    local unauth_action = nil
-    if self.oidcConfig.anonymous ~= "" and self.oidcConfig.anonymous ~= nil then
-        unauth_action = "pass"
+    local existingCreds = kong.client.get_credential()
+    if existingCreds then
+        kong.log.debug("Existing creds from a previous plugin present" .. self.oidcConfig.anonymous )
+    else
+        kong.log.debug("Existing creds not present")
+    end
+    if self.oidcConfig.anonymous ~= "" and self.oidcConfig.anonymous ~= nil and existingCreds then
+        kong.log.debug("Anonymous consumer identified with creds. Skipping authentication...")
     end
 
-    -- Run resty oidc
+    -- Unauth action for resty oidc (for anonymous flow)
+    local unauth_action
+    -- Reject if it's not a browser, and a cookie is not present
+    local isABrowser = string.match(kong.request.get_header("User-Agent"), "Mozilla")
+
+
+    -- If no session is present AND the request is coming from a machine (not a browser), tell Resty OIDC to
+    -- avoid returning a 403 immediately so that we can register an anonymous consumer. This is useful when this plugin
+    -- is being used in conjunction with other Kong auth plugins (oauth2, key-auth, etc.) in "logical OR" mode.
+    local session = require("resty.session").open()
+    if not session.present and not isABrowser then
+        unauth_action = "pass"
+    end
+    kong.log.debug("Unauth action: " .. (unauth_action or "none"))
+
+
+    -- Run resty oidc authentication
+    kong.log.debug("[access.lua] : OidcHandler calling authenticate, requested path: " .. ngx.var.request_uri)
     local res, err = require("resty.openidc").authenticate(self.oidcConfig, nil, unauth_action)
     if err then
         if oidcConfig.recovery_page_path then
@@ -58,6 +78,14 @@ function Access:start(config)
 
     kong.log.debug("[access.lua] : Starting Kong Google Groups Authorization.")
 
+    -- Check first if authentication is needed
+    if config.anonymous and kong.client.get_credential() then
+    -- we're already authenticated, and we're configured for using anonymous,
+    -- hence we're in a logical OR between auth methods and we're already done.
+        kong.log.debug("[access.lua] : Already authenticated from previous plugin (Logical OR). Skipping auth and continuing to upstream...")
+        return
+    end
+
     -- Check various conditions
     local filters = Filters:new(config)
     -- Check if this plugin config specifies any allowed groups
@@ -82,9 +110,7 @@ function Access:start(config)
     -- Load config object to prepare for sending resty-oidc
     self.oidcConfig = Utilities:getOptionsForRestyOIDC(config)
     local user = self:handleOIDC()
-    kong.log.debug("OidcHandler done")
-
-    -- TODO account for 429s or 4XXs from Google. Should have a way of alerting on this (Sentry?)
+    kong.log.debug("[access.lua] : OidcHandler done")
 
     -- Google Groups flow begin
     if user then
@@ -98,7 +124,7 @@ function Access:start(config)
         kong.log.debug("[access.lua] : Authorized via Google Groups. Continuing to upstream...")
         return
     end
-    Utilities:exit(500, 'Could not get user information from Google OIDC to authenticate')
+    Utilities:exit(403, 'Could not get user information from Google OIDC to authenticate')
 end
 
 return Access
