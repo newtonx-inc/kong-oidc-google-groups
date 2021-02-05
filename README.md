@@ -26,10 +26,8 @@ Often a clean way of doing this is creating your own Docker image that uses Kong
 packages in the build steps. 
 
 # How it works
-TODO: <Lucid Chart Diagram Overview>
+![How Kong OIDC Google Groups works](kong-oidc-google-groups-overview.png)
 
-# Example
-Show upstream request
 
 # Requirements
 * Kong DB (does not work in db-less mode)
@@ -40,9 +38,9 @@ Show upstream request
 ## Infrastructure dependencies
 - Google Workspace (formally "Gsuite") organization
 - A Google Cloud Platform service account with domain-wide delegation turned, and authorized in your Google 
-  Worskpace with proper scopes. [See instructions]()
+  Worskpace with proper scopes. [See instructions](https://developers.google.com/admin-sdk/directory/v1/guides/delegation)
 - Enable the Google Directory API in Google Cloud Platform
-- Set up a GCP OAuth client (and thus a Client ID and Client Secret) and consent screen. [See instructions]()
+- Set up a GCP OAuth client (and thus a Client ID and Client Secret) and consent screen. [See instructions](https://developers.google.com/identity/protocols/oauth2/openid-connect)
 - Create one or more groups and add users to them in Google Workspace. These will be your "allowed groups" for Google 
   Groups based authorization after OIDC authentication is done.
 - Kong (This plugin tested in production w/ version 2.2)

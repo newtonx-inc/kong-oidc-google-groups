@@ -92,23 +92,7 @@ function Utilities:injectUser(user)
   ngx.req.set_header("X-User-Info", ngx.encode_base64(userinfo))
   ngx.req.set_header("X-Auth-Mechanism", "google-oidc")
   ngx.req.set_header(constants.HEADERS.CONSUMER_ID, user.email)
-end
-
-function Utilities:injectAnonymousConsumer(anonymousUserId)
-  local consumer_cache_key, consumer, err
-  local cache = kong.cache
-  consumer_cache_key = kong.db.consumers:cache_key(anonymousUserId)
-  consumer, err      = cache:get(consumer_cache_key, nil,
-                                 kong.client.load_consumer,
-                                 anonymousUserId)
-  if err then
-    kong.log.err(err)
-    return false
-  end
-
-  ngx.req.set_header(constants.HEADERS.ANONYMOUS, true)
-  ngx.req.set_header(constants.HEADERS.CONSUMER_USERNAME, consumer.username)
-  ngx.req.set_header(constants.HEADERS.CONSUMER_ID, consumer.id)
+  -- TODO - need to clear an anonymous user that may have been set previously by oauth2/key-auth/etc.
 end
 
 local function set_consumer(consumer, credential)

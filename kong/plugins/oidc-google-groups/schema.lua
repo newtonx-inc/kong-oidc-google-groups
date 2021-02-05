@@ -1,7 +1,7 @@
 local typedefs = require("kong.db.schema.typedefs")
 
 return {
-  name = "kong-google-auth",
+  name = "kong-oidc-google-groups",
   fields = {
     {
       protocols = typedefs.protocols_http

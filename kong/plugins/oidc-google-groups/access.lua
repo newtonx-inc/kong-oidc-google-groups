@@ -68,7 +68,7 @@ function Access:handleOIDC()
 
     -- Set anonymous headers if necessary
     if self.oidcConfig.anonymous ~= "" and self.oidcConfig.anonymous ~= nil then
-        Utilities:injectAnonymousConsumer(self.oidcConfig.anonymous)
+        Utilities:setConsumer(self.oidcConfig)
     end
 end
 
