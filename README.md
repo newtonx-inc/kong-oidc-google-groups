@@ -29,7 +29,7 @@ packages in the build steps.
 TODO: <Lucid Chart Diagram Overview>
 
 # Example
-Show upstream request
+TODO: Show upstream request
 
 # Requirements
 * Kong DB (does not work in db-less mode)
