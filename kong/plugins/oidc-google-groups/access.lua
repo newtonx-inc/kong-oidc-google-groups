@@ -16,9 +16,6 @@ function Access:callRestyOIDC()
     else
         kong.log.debug("Existing creds not present")
     end
-    if self.oidcConfig.anonymous ~= "" and self.oidcConfig.anonymous ~= nil and existingCreds then
-        kong.log.debug("Anonymous consumer identified with creds. Skipping authentication...")
-    end
 
     -- Unauth action for resty oidc (for anonymous flow)
     local unauth_action
@@ -56,6 +53,7 @@ function Access:handleOIDC()
     if response then
         if (response.user) then
             Utilities:injectUser(response.user)
+            Utilities:injectConsumerAndCreds(response.user, self.oidcConfig.client_id)
         end
         if (response.access_token) then
             Utilities:injectAccessToken(response.access_token)
@@ -68,7 +66,7 @@ function Access:handleOIDC()
 
     -- Set anonymous headers if necessary
     if self.oidcConfig.anonymous ~= "" and self.oidcConfig.anonymous ~= nil then
-        Utilities:setConsumer(self.oidcConfig)
+        Utilities:setAnonymousConsumer(self.oidcConfig)
     end
 end
 
@@ -124,7 +122,7 @@ function Access:start(config)
         kong.log.debug("[access.lua] : Authorized via Google Groups. Continuing to upstream...")
         return
     end
-    Utilities:exit(403, 'Could not get user information from Google OIDC to authenticate')
+    Utilities:setAnonymousConsumer(config)
 end
 
 return Access

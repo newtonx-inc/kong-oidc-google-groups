@@ -90,9 +90,6 @@ function Utilities:injectUser(user)
   ngx.ctx.authenticated_credential = tmp_user
   local userinfo = JSON:encode(user)
   ngx.req.set_header("X-User-Info", ngx.encode_base64(userinfo))
-  ngx.req.set_header("X-Auth-Mechanism", "google-oidc")
-  ngx.req.set_header(constants.HEADERS.CONSUMER_ID, user.email)
-  -- TODO - need to clear an anonymous user that may have been set previously by oauth2/key-auth/etc.
 end
 
 local function set_consumer(consumer, credential)
@@ -134,8 +131,29 @@ local function set_consumer(consumer, credential)
   end
 end
 
+function Utilities:injectConsumerAndCreds(user, clientId)
+  -- Takes in a user object and sets the consumer and credential so that subsequent auth plugins will
+  -- see that the the request is authenticated. NOTE: These aren't actual Kong creds and consumers, but are just
+  -- used to satisfy "Logical OR" multiple authentication in Kong (https://docs.konghq.com/gateway-oss/2.2.x/auth/)
+  -- :param user: The user object obtained from Lua Resty OIDC
+  -- :param clientId: Client Id to use for the credential
+  --   Returns: nothing
 
-function Utilities:setConsumer(config)
+  -- Create consumer
+  local fakeConsumer = {
+    id = user.email .. "oidc-google-groups",
+    custom_id = user.email,
+    username = user.email,
+  }
+  -- Create credential
+  local fakeCredential = {
+    client_id = clientId,
+  }
+
+  set_consumer(fakeConsumer, fakeCredential)
+end
+
+function Utilities:setAnonymousConsumer(config)
   -- Retrieve the consumer from the config and set it in the headers (important if doing multiple auth)
   -- Returns: nil
   if config.anonymous then

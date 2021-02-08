@@ -12,14 +12,14 @@ return {
         fields = {
             -- Describe your plugin's configuration's schema here.
             {
-              -- What Google groups to check for membership in
+              -- The OAuth Client ID of your client in GCP used for performing OIDC auth
               client_id = {
                   type = "string",
                   required = true,
               },
             },
             {
-              -- What Google groups to check for membership in
+              -- The OAuth Client Secret of your client in GCP used for performing OIDC auth
               client_secret = {
                   type = "string",
                   required = true,
