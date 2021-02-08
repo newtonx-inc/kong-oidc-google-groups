@@ -141,7 +141,7 @@ function Utilities:injectConsumerAndCreds(user, clientId)
 
   -- Create consumer
   local fakeConsumer = {
-    id = user.email .. "oidc-google-groups",
+    id = user.email .. ":oidc-google-groups",
     custom_id = user.email,
     username = user.email,
   }
