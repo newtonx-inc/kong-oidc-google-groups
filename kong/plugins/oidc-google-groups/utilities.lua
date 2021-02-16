@@ -89,7 +89,7 @@ function Utilities:injectUser(user)
   tmp_user.username = user.preferred_username
   ngx.ctx.authenticated_credential = tmp_user
   local userinfo = JSON:encode(user)
-  ngx.req.set_header("X-User-Info", ngx.encode_base64(userinfo))
+  ngx.req.set_header("X-Userinfo", ngx.encode_base64(userinfo))
 end
 
 local function set_consumer(consumer, credential)
