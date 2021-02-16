@@ -140,10 +140,11 @@ function Utilities:injectConsumerAndCreds(user, clientId)
   --   Returns: nothing
 
   -- Create consumer
+  local suffix = "-newtonx-oidc-google-groups"
   local fakeConsumer = {
-    id = user.email .. ":oidc-google-groups",
-    custom_id = user.email,
-    username = user.email,
+    id = user.email .. suffix,
+    custom_id = user.email .. suffix,
+    username = user.email .. suffix,
   }
   -- Create credential
   local fakeCredential = {
