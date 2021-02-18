@@ -86,11 +86,6 @@ function Access:start(config)
 
     -- Check various conditions
     local filters = Filters:new(config)
-    -- Check if this plugin config specifies any allowed groups
-    if not filters:checkIfAllowedGroupsPresent() then
-        kong.log.debug("[access.lua] : No allowed groups found. Skipping Google Groups authorization.")
-        return
-    end
 
     -- Checks if this plugin should be applied to any specific paths
     if not filters:checkPath() then
@@ -114,6 +109,10 @@ function Access:start(config)
     if user then
         local userEmail = user['email']
         -- Check if user belongs to one of the allowedGroups. If user doesn't exist, exit with 403
+        if not filters:checkIfAllowedGroupsPresent() then
+            kong.log.debug("[access.lua] : No Google Groups to compare against. Continuing upstream...")
+            return
+        end
         local m = Memberships:new(config, userEmail)
         local res = m:checkMemberships()
         if not res then
