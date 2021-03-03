@@ -67,6 +67,7 @@ The following are some of the main software dependencies for this plugin. The Ro
 | logout_path               | /logout          | No        | Absolute path used to logout from the OIDC RP                                                                                                                                                |
 | redirect_after_logout_uri | /                | No        | Where to redirect to after logout                                                                                                                                                            |
 | recovery_page_path        | /                | No        | Where to redirect to on OIDC failure                                                                                                                                                            |
+| hd                        | *                | No        | Hosted domain to allow for access (defaults to "*")                                                                                                                                                            |
 | anonymous                 |                  | No        | Consumer ID to use as an "anonymous" consumer if auth fails. Used for "logical OR" in Kong multiple authentication.                                                                                                                                                            |
 
 # Development

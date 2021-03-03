@@ -67,6 +67,7 @@ function Utilities:getOptionsForRestyOIDC(config)
     filters = parseFilters(nil),
     logout_path = config.logout_path,
     redirect_after_logout_uri = config.redirect_after_logout_uri,
+    hd = config.hd or "*",
   }
 end
 
