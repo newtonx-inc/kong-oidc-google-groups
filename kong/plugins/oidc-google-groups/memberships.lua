@@ -28,7 +28,7 @@ local function fetchMembershipFromCache(user)
 
     -- Check cache (and check DB as backup)
     local cache_key = kong.db.google_group_memberships:cache_key(user)
-    local entity, err = kong.cache:get(cache_key, nil, fetchMembershipFromDB, cache_key)
+    local entity, err = kong.cache:get(cache_key, nil, fetchMembershipFromDB, user)
     if err then
         kong.log.err("[memberships.lua] Could not fetch fetch membership from Cache: " .. err)
         return nil, err

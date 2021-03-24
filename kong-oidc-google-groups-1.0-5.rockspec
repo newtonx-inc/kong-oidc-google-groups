@@ -1,8 +1,8 @@
 package = "kong-oidc-google-groups"
-version = "1.0-4"
+version = "1.0-5"
 source = {
    url = "git://github.com/newtonx-inc/kong-oidc-google-groups",
-   tag = "v1.0-4"
+   tag = "v1.0-5"
 }
 description = {
    summary = "A Kong plugin for implementing Google OIDC, with additional Google Groups-based authorization",
@@ -19,7 +19,7 @@ dependencies = {
     "lua >= 5.1",
     "lua-resty-openidc ~> 1.6.1-1",
     "lua-resty-http >= 0.15",
-    "lua-resty-jwt >= 0.2.2",
+    "lua-resty-jwt ~> 0.2.2",
     "base64 >= 1.5",
     "penlight >= 1.7.0",
     "json-lua >= 0.1",
